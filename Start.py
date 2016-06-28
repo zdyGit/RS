@@ -71,7 +71,6 @@ def GetScoreData():
 			scoreList[userID].setdefault(movieID,score)
 	return scoreList
 
-
 #统计与某人最相似的n个人
 def GetSimilarityResult(UL,p,n,similarMethod):
 	
@@ -110,10 +109,12 @@ def Main():
 	#print(AlgorithmSet.PearsonSimilarity(ul,12,13))
 	#print(AlgorithmSet.EuclidSimilarity(ul,12,13))
 	#
-	print(GetSimilarityResult(ul,12,5,AlgorithmSet.PearsonSimilarity))
+	#print(GetSimilarityResult(ul,12,5,AlgorithmSet.PearsonSimilarity))
 
-	#s1 = GetRecommendMovies(ul,13,10,AlgorithmSet.PearsonSimilarity)
-
-
+	#s1 = GetRecommendMovies(ul,87,30,AlgorithmSet.PearsonSimilarity)
+	#for item in s1:
+	#	print(str(item[0])+":"+mi[item[1]]["title"])		
+	ml = AlgorithmSet.Transfer(ul)
+	print(GetRecommendMovies(ml,1,10,AlgorithmSet.PearsonSimilarity))
 
 Main()

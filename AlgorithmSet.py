@@ -1,6 +1,6 @@
 import math
 
-#得到两者相似项
+#得到两者共同评分项
 def GetSameItem(UL,p1,p2):
 	si = {}
 	for item in UL[p1]:
@@ -39,3 +39,12 @@ def PearsonSimilarity(UL,p1,p2):
 
 	r = num/den
 	return r
+
+#矩阵转换
+def Transfer(UL):
+	res = {}
+	for user in UL:
+		for movie in UL[user]:
+			res.setdefault(movie,{})
+			res[movie][user] = UL[user][movie]
+	return res
