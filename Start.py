@@ -72,30 +72,48 @@ def GetScoreData():
 	return scoreList
 
 
-#计算相似度
+#统计与某人最相似的n个人
 def GetSimilarityResult(UL,p,n,similarMethod):
-	res = {}
-	for other in UL:
-		if other == p:
-			continue
-		else:
-			res.setdefault(other,similarMethod(UL,p,other))
-	return res
+	
+	res = [(other,similarMethod(UL,p,other)) for other in UL if other != p]
+	res.sort(key = lambda x:x[1],reverse = True)
+	return res[0:n]
 
+#根据指定相似度算法给某人推荐n部电影
+def GetRecommendMovies(UL,p,n,similarMethod):
+
+	totalScore = {}
+	simSums = {}
+	for other in UL:
+	 	if other == p :
+	 		continue
+	 	else:
+	 		sim = similarMethod(UL,p,other)
+
+	 		if sim >0:
+	 			for item in UL[other]:
+	 				if item not in UL[p] or UL[p][item] == 0:
+	 					totalScore.setdefault(item,0)
+	 					totalScore[item] += UL[other][item]*sim
+	 					simSums.setdefault(item,0)
+	 					simSums[item] += sim
+
+	rankings = [ (total/simSums[item],item) for item,total in totalScore.items() ]
+	rankings.sort(reverse=True)
+	return rankings[0:n]
 
 def Main():
 
+	mi = GetMovieData()
 	ul = GetScoreData()
-	p1 = 149
-	p2 = 122
-	
-	si  = AlgorithmSet.GetSameItem(ul,p1,p2)
-	for item in si:
-		print("p1-"+str(item)+":"+str(ul[p1][item]))
-		print("p2-"+str(item)+":"+str(ul[p2][item]))
 
-	print(AlgorithmSet.PearsonSimilarity(ul,p1,p2))
-	print(AlgorithmSet.EuclidSimilarity(ul,p1,p2))
-	#print(GetSimilarityResult(ul,121,10,AlgorithmSet.EuclidSimilarity))
+	#print(AlgorithmSet.PearsonSimilarity(ul,12,13))
+	#print(AlgorithmSet.EuclidSimilarity(ul,12,13))
+	#
+	print(GetSimilarityResult(ul,12,5,AlgorithmSet.PearsonSimilarity))
+
+	#s1 = GetRecommendMovies(ul,13,10,AlgorithmSet.PearsonSimilarity)
+
+
 
 Main()
