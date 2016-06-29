@@ -1,0 +1,28 @@
+这个测试项目主要用了欧几里得相似度算法和皮尔逊相关度算法
+
+不管是欧几里得算法还是采用皮尔逊相关度算法，第一步，就是获得双方的共同评价事物
+
+1 #得到两者共同评分项[python]
+  def GetSameItem(UL,p1,p2):
+  	si = {}
+  	for item in UL[p1]:
+  		if item in UL[p2]:
+  			si[item] = 1
+  	return si
+  
+2.1 欧几里得算法
+  核心思想就是，以评分项建立一个多维的空间，那么双方的空间距离可以用作评判双方的相似度，距离越长，相关性越差；反之，相关性越强
+  
+  Similar = 1/(1+sqrt( ∑(xi^-yi)^2 ) )
+  #欧几里得相似度算法[python]
+  def EuclidSimilarity(UL,p1,p2):
+  	si = GetSameItem(UL,p1,p2)
+  	if len(si) == 0:
+  		return 0
+  	sum_of_squares = sum([pow(UL[p1][item] - UL[p2][item] , 2) for item in si])
+  	return 1/(1+math.sqrt(sum_of_squares))
+  2.2 皮尔逊相关度算法
+    皮尔逊相关系数是判断两组数据与某一直线拟合程度的一种度量。在对于数据不是很规范时会倾向于给出更好的结果
+    对同一事物的评价，会以，x,y坐标的形式体现出来，那么多组事物组成的点会有一条最佳拟合线。如果，两个人的相似度完全一致的话，这条拟合线应该和X
+    轴呈45度角。反之，对45度对角线偏离越大，相似度越小
+    Similar = (∑xiyi-(∑xi * ∑yi)/N) /(∑(xi^2)-(∑xi)^2/N) * (∑(yi^2)-(∑yi)^2/N) 
