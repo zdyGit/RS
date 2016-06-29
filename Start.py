@@ -78,8 +78,8 @@ def GetSimilarityResult(UL,p,n,similarMethod):
 	res.sort(key = lambda x:x[1],reverse = True)
 	return res[0:n]
 
-#根据指定相似度算法给某人推荐n部电影
-def GetRecommendMovies(UL,p,n,similarMethod):
+#根据指定相似度算法给某人推荐n部电影,结合所有人的相似度
+def GetRecommendMoviesByAllPeople(UL,p,n,similarMethod):
 
 	totalScore = {}
 	simSums = {}
@@ -101,20 +101,59 @@ def GetRecommendMovies(UL,p,n,similarMethod):
 	rankings.sort(reverse=True)
 	return rankings[0:n]
 
+#根据指定相似度算法给某人推荐n部电影,结合最相似的10个人的相似度
+def GetRecommendMoviesBySimilarPeople(UL,p,n,similarMethod):
+	totalScore = {}
+	simSums = {}
+	SimilarPeople = GetSimilarityResult(UL,p,10,similarMethod)
+	for other in SimilarPeople:
+	 	sim = other[1]
+	 	otherpeople = other[0]
+ 		if sim >0:
+ 			for item in UL[otherpeople]:
+ 				if item not in UL[p] or UL[p][item] == 0:
+ 					totalScore.setdefault(item,0)
+ 					totalScore[item] += UL[otherpeople][item]*sim
+ 					simSums.setdefault(item,0)
+ 					simSums[item] += sim
+
+	rankings = [ (total/simSums[item],item) for item,total in totalScore.items() ]
+	rankings.sort(reverse=True)
+	return rankings[0:n]
+
+#制作物-物相似程度字典表，只统计与自己最相似的10部电影
+def CalculateSimilarItems(UL,p,n=10):
+	res = {}
+	c = 0
+	for item in UL :
+		if item != p:
+			continue
+		c += 1
+		similar = GetSimilarityResult(UL,item,n,AlgorithmSet.EuclidSimilarity)
+		res[item] = similar
+		if c%100 == 0:
+			print("%d / %d" %(c,len(UL)) )
+	print(res)
+
 def Main():
 
 	mi = GetMovieData()
 	ul = GetScoreData()
-
+	#print(ul[87])
 	#print(AlgorithmSet.PearsonSimilarity(ul,12,13))
 	#print(AlgorithmSet.EuclidSimilarity(ul,12,13))
 	#
 	#print(GetSimilarityResult(ul,12,5,AlgorithmSet.PearsonSimilarity))
 
-	#s1 = GetRecommendMovies(ul,87,30,AlgorithmSet.PearsonSimilarity)
+	#s1 = GetRecommendMoviesByAllPeople(ul,87,5,AlgorithmSet.PearsonSimilarity)
 	#for item in s1:
+	#	print(str(item[0])+":"+mi[item[1]]["title"])
+	#print("------------------------------")
+	#s2 = GetRecommendMoviesBySimilarPeople(ul,87,5,AlgorithmSet.PearsonSimilarity)
+	#for item in s2:
 	#	print(str(item[0])+":"+mi[item[1]]["title"])		
 	ml = AlgorithmSet.Transfer(ul)
-	print(GetRecommendMovies(ml,1,10,AlgorithmSet.PearsonSimilarity))
+	#print(GetSimilarityResult(ml,1,10,AlgorithmSet.PearsonSimilarity))
+	CalculateSimilarItems(ml,1,100)
 
 Main()
